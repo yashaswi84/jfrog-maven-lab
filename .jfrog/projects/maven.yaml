@@ -1,0 +1,11 @@
+version: 1
+type: maven
+resolver:
+    serverId: yashaswi
+    snapshotRepo: maven-virtual
+    releaseRepo: maven-virtual
+deployer:
+    serverId: yashaswi
+    snapshotRepo: maven-local
+    releaseRepo: maven-local
+useWrapper: true
