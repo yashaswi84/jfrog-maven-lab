@@ -13,46 +13,36 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # 1) Install JFrog CLI and pass URL + token via env
+      # 1) Install JFrog CLI and configure built-in server
+      #    This automatically creates a server ID: setup-jfrog-cli-server
       - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
         env:
           JF_URL: https://yashaswi.jfrog.io
           JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
-      # 2) Configure JFrog server and set it as default
-      - name: Configure JFrog server
-        run: |
-          jf c add yashaswi \
-            --url=$JF_URL \
-            --access-token=$JF_ACCESS_TOKEN \
-            --interactive=false
-          jf c use yashaswi
-        env:
-          JF_URL: https://yashaswi.jfrog.io
-          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+      # 2) (Optional) Verify connectivity to Artifactory
+      - name: Run jf rt ping
+        run: jf rt ping --server-id=setup-jfrog-cli-server
 
-      # 3) Configure Maven project for Artifactory (in CI workspace)
+      # 3) Configure Maven for Artifactory using that same server ID
       - name: Configure Maven for Artifactory
         run: |
           jf mvn-config \
-            --server-id-resolve=yashaswi \
-            --server-id-deploy=yashaswi \
+            --server-id-resolve=setup-jfrog-cli-server \
+            --server-id-deploy=setup-jfrog-cli-server \
             --repo-resolve-releases=maven-virtual \
             --repo-resolve-snapshots=maven-virtual \
             --repo-deploy-releases=maven-local \
             --repo-deploy-snapshots=maven-local
 
-      # 4) Verify connectivity
-      - name: Run jf rt ping
-        run: jf rt ping
-
-      # 5) Maven build with JFrog CLI
+      # 4) Maven build with JFrog CLI
       - name: Maven build with JFrog CLI
         run: |
           jf mvn clean install
 
-      # 6) Publish build-info
+      # 5) Publish build-info
       - name: Publish build-info
         run: |
-          jf rt bp maven-example-ci $GITHUB_RUN_NUMBER
+          jf rt bp maven-example-ci $GITHUB_RUN_NUMBER --server-id=setup-jfrog-cli-server
+
