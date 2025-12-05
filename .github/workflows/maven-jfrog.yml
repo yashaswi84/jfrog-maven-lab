@@ -32,17 +32,27 @@ jobs:
           JF_URL: https://yashaswi.jfrog.io
           JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
-      # 3) Verify connectivity
+      # 3) Configure Maven project for Artifactory (in CI workspace)
+      - name: Configure Maven for Artifactory
+        run: |
+          jf mvn-config \
+            --server-id-resolve=yashaswi \
+            --server-id-deploy=yashaswi \
+            --repo-resolve-releases=maven-virtual \
+            --repo-resolve-snapshots=maven-virtual \
+            --repo-deploy-releases=maven-local \
+            --repo-deploy-snapshots=maven-local
+
+      # 4) Verify connectivity
       - name: Run jf rt ping
         run: jf rt ping
 
-      # 4) Maven build with JFrog CLI (no extra flags)
+      # 5) Maven build with JFrog CLI
       - name: Maven build with JFrog CLI
         run: |
           jf mvn clean install
 
-      # 5) Publish build-info
+      # 6) Publish build-info
       - name: Publish build-info
         run: |
           jf rt bp maven-example-ci $GITHUB_RUN_NUMBER
-
