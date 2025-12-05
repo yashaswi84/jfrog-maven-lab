@@ -17,32 +17,32 @@ jobs:
       - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
         env:
-          # Your JFrog SaaS URL (hard-coded for now)
           JF_URL: https://yashaswi.jfrog.io
-          # Access token stored as a GitHub secret
           JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
-      # 2) Explicitly create a server configuration named "yashaswi"
+      # 2) Configure JFrog server and set it as default
       - name: Configure JFrog server
         run: |
           jf c add yashaswi \
             --url=$JF_URL \
             --access-token=$JF_ACCESS_TOKEN \
             --interactive=false
+          jf c use yashaswi
         env:
           JF_URL: https://yashaswi.jfrog.io
           JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       # 3) Verify connectivity
       - name: Run jf rt ping
-        run: jf rt ping --server-id=yashaswi
+        run: jf rt ping
 
-      # 4) Maven build with JFrog CLI
+      # 4) Maven build with JFrog CLI (no extra flags)
       - name: Maven build with JFrog CLI
         run: |
-          jf mvn clean install --server-id-resolve=yashaswi --server-id-deploy=yashaswi
+          jf mvn clean install
 
       # 5) Publish build-info
       - name: Publish build-info
         run: |
-          jf rt bp maven-example-ci $GITHUB_RUN_NUMBER --server-id=yashaswi
+          jf rt bp maven-example-ci $GITHUB_RUN_NUMBER
+
