@@ -17,7 +17,6 @@ jobs:
       - name: Install JFrog CLI
         run: |
           curl -fL https://install-cli.jfrog.io | sh
-          sudo mv jf /usr/local/bin/jf
           jf --version
 
       # 2) Configure JFrog server using the SAME token as ARTIFACTORY_ACCESS_TOKEN
