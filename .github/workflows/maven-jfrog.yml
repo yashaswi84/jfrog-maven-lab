@@ -16,8 +16,17 @@ jobs:
       # 1) Install JFrog CLI (transparent, no magic)
       - name: Install JFrog CLI
         run: |
-          curl -fL https://install-cli.jfrog.io | sh
-          jf --version
+          echo "Token length: ${#ARTIFACTORY_ACCESS_TOKEN}"
+          env | grep -i ARTIFACTORY || true
+
+          jf c add ci-server \
+            --url=https://yashaswi.jfrog.io \
+            --access-token="$ARTIFACTORY_ACCESS_TOKEN" \
+            --interactive=false
+          jf c use ci-server
+          jf c show
+        env:
+          ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       # 2) Configure JFrog server using the SAME token as ARTIFACTORY_ACCESS_TOKEN
       - name: Configure JFrog CLI
