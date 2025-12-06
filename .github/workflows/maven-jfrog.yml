@@ -22,11 +22,12 @@ jobs:
         id: setup-cli
         uses: jfrog/setup-jfrog-cli@v4
         env:
-          # Reuse your existing GitHub variable
-          # ARTIFACTORY_URL = https://yashaswi.jfrog.io
-          JF_URL: ${{ vars.ARTIFACTORY_URL }}
+          # Hardcode your SaaS URL for now to avoid any variable scoping issues
+          JF_URL: https://yashaswi.jfrog.io
         with:
-          oidc-provider-name: setup-jfrog-cli   # must match Provider Name in JFrog UI
+          # Must match the Provider Name in JFrog OIDC integration UI
+          oidc-provider-name: setup-jfrog-cli
+          # Stable server id we'll use in later steps
           custom-server-id: ci-oidc
 
       # 2) Sanity check – confirm CI can talk to Artifactory
