@@ -22,17 +22,21 @@ jobs:
       # 2) Configure JFrog CLI with the CI token
       - name: Configure JFrog CLI
         run: |
-          echo "Token length: ${#ARTIFACTORY_ACCESS_TOKEN}"
+	  echo "Raw token length: ${#ARTIFACTORY_ACCESS_TOKEN}"
+
+          # Trim any hidden newline or carriage return from GitHub Secret
+          CLEAN_TOKEN=$(printf "%s" "$ARTIFACTORY_ACCESS_TOKEN" | tr -d '\r\n')
+          echo "Clean token length: ${#CLEAN_TOKEN}"
 
           jf c add ci-server \
             --url=https://yashaswi.jfrog.io \
-            --access-token="$ARTIFACTORY_ACCESS_TOKEN" \
+            --access-token="$CLEAN_TOKEN" \
             --interactive=false
 
           jf c use ci-server
           jf c show
         env:
-          ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}	
 
       # 3) Check authenticated access to Artifactory
       - name: Check authenticated access to Artifactory
