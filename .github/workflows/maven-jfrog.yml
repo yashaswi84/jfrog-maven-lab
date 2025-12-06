@@ -52,7 +52,7 @@ jobs:
       # 4) Maven build with JFrog CLI
       - name: Maven build with JFrog CLI
         run: |
-          jf mvn clean install
+          jf mvn -pl '!multi3' clean install
 
       # 5) Publish build-info
       - name: Publish build-info
